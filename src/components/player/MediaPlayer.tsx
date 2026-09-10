@@ -70,8 +70,8 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
   } = useHlsStream({
     source,
     videoRef,
-    onIsLiveChange: (live) => setIsLiveStream(live),
-    onError: (err) => setPlayerError(err),
+    onIsLiveChange: (live: boolean) => setIsLiveStream(live),
+    onError: (err: string) => setPlayerError(err),
   });
 
   const effectiveIsLive = isLiveStream || isHlsLive;

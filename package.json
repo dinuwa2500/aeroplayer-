@@ -3,14 +3,34 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "electron:dev": "concurrently \"vite\" \"electron .\"",
-    "electron:build": "vite build && electron-builder",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "electron:dev": "tsc -p tsconfig.electron.json && concurrently \"vite\" \"electron .\"",
+    "electron:build": "vite build && tsc -p tsconfig.electron.json && electron-builder",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build"
+  },
+  "build": {
+    "appId": "com.aeroplayer.app",
+    "productName": "AeroPlayer",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -28,6 +48,7 @@
     "autoprefixer": "^10.4.20",
     "concurrently": "^10.0.5",
     "electron": "^44.3.0",
+    "electron-builder": "^25.1.8",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.6.2",

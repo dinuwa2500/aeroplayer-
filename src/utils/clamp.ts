@@ -1,0 +1,6 @@
+/**
+ * Clamps a number between a minimum and maximum boundary
+ */
+export function clamp(val: number, min: number, max: number): number {
+  return Math.max(min, Math.min(val, max));
+}
