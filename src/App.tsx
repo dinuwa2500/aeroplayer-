@@ -5,12 +5,8 @@ import { StreamUrlModal } from './components/modals/StreamUrlModal';
 import { StreamSource } from './types/player';
 
 export default function App() {
-  // Initial default stream for instant demonstration
-  const [currentSource, setCurrentSource] = useState<StreamSource | null>({
-    url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-    title: 'Big Buck Bunny (HLS Adaptive Bitrate Stream)',
-    type: 'hls',
-  });
+  // Initially no media is loaded until the user selects a file or enters a stream URL
+  const [currentSource, setCurrentSource] = useState<StreamSource | null>(null);
 
   const [isStreamModalOpen, setIsStreamModalOpen] = useState<boolean>(false);
   const [isLive, setIsLive] = useState<boolean>(false);

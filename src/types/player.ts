@@ -51,13 +51,6 @@ export interface HoverThumbnailState {
   error: boolean;
 }
 
-export interface PresetStream {
-  name: string;
-  url: string;
-  type: StreamType;
-  description: string;
-  isLive?: boolean;
-}
 
 export interface SubtitleCue {
   id: number;

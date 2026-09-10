@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, Play, Link, Sparkles, CheckCircle2 } from 'lucide-react';
-import { StreamSource, PresetStream } from '../../types/player';
+import { X, Play, Link } from 'lucide-react';
+import { StreamSource } from '../../types/player';
 import { detectStreamType, validateStreamUrl } from '../../utils/streamDetector';
 
 interface StreamUrlModalProps {
@@ -8,37 +8,6 @@ interface StreamUrlModalProps {
   onClose: () => void;
   onLoadStream: (source: StreamSource) => void;
 }
-
-const PRESET_STREAMS: PresetStream[] = [
-  {
-    name: 'Big Buck Bunny (Multi-bitrate HLS)',
-    url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-    type: 'hls',
-    description: 'Full VOD HLS stream with multiple ABR quality levels & fast seeking',
-    isLive: false,
-  },
-  {
-    name: 'Tears of Steel (HLS VOD)',
-    url: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
-    type: 'hls',
-    description: 'High definition 1080p open-source sci-fi cinematic stream',
-    isLive: false,
-  },
-  {
-    name: 'Akamai Live HLS Stream',
-    url: 'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8',
-    type: 'hls',
-    description: 'Live broadcast test stream with live sync & rolling window',
-    isLive: true,
-  },
-  {
-    name: 'Sintel Trailer (Direct MP4)',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-    type: 'direct',
-    description: 'Direct progressive download media with keyframe seeking',
-    isLive: false,
-  },
-];
 
 export const StreamUrlModal: React.FC<StreamUrlModalProps> = ({
   isOpen,
@@ -71,15 +40,6 @@ export const StreamUrlModal: React.FC<StreamUrlModalProps> = ({
       type,
     });
 
-    onClose();
-  };
-
-  const handleSelectPreset = (preset: PresetStream) => {
-    onLoadStream({
-      url: preset.url,
-      title: preset.name,
-      type: preset.type,
-    });
     onClose();
   };
 
@@ -165,43 +125,6 @@ export const StreamUrlModal: React.FC<StreamUrlModalProps> = ({
             </button>
           </div>
         </form>
-
-        {/* Quick Test Presets Section */}
-        <div className="mt-5 border-t border-zinc-800/80 pt-4">
-          <div className="flex items-center space-x-1 text-xs font-semibold text-zinc-400 mb-2">
-            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-            <span>Instant Test Presets</span>
-          </div>
-
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {PRESET_STREAMS.map((preset, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleSelectPreset(preset)}
-                className="group flex flex-col items-start rounded-lg border border-zinc-800/80 bg-zinc-950/60 p-2.5 text-left transition hover:border-blue-500/50 hover:bg-zinc-800/50"
-              >
-                <div className="flex w-full items-center justify-between">
-                  <span className="text-xs font-semibold text-zinc-200 group-hover:text-blue-400 transition">
-                    {preset.name}
-                  </span>
-                  <span className="rounded bg-zinc-800 px-1 py-0.5 text-[9px] uppercase font-bold text-zinc-400">
-                    {preset.type}
-                  </span>
-                </div>
-                <p className="mt-1 text-[11px] text-zinc-400 line-clamp-1 leading-relaxed">
-                  {preset.description}
-                </p>
-                {preset.isLive && (
-                  <span className="mt-1 flex items-center space-x-1 text-[9px] font-bold text-red-400">
-                    <CheckCircle2 className="h-2.5 w-2.5" />
-                    <span>Live broadcast</span>
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
