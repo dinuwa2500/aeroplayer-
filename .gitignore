@@ -1,0 +1,153 @@
+# ==============================================================================
+# Production-Grade .gitignore for Cross-Platform Desktop Media Player
+# (Vite + React + TypeScript + Tailwind + Electron + Tauri + pnpm)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Dependencies & Package Managers
+# ------------------------------------------------------------------------------
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+jspm_packages/
+web_modules/
+
+# ------------------------------------------------------------------------------
+# 2. Build Outputs & Compilations
+# ------------------------------------------------------------------------------
+# Vite / Frontend builds
+dist/
+dist-ssr/
+build/
+out/
+
+# TypeScript cache
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Electron builds & packaged binaries
+dist-electron/
+release/
+release-builds/
+*.exe
+*.msi
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.AppImage
+*.snap
+*.zip
+*.tar.gz
+
+# Tauri / Rust builds
+src-tauri/target/
+src-tauri/binaries/
+src-tauri/WixTools/
+src-tauri/gen/
+
+# ------------------------------------------------------------------------------
+# 3. Environment Variables & Credentials
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+
+# ------------------------------------------------------------------------------
+# 4. Logs, Dumps & Debugging
+# ------------------------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+crash-dumps/
+*.stackdump
+
+# ------------------------------------------------------------------------------
+# 5. Editor & IDE Settings
+# ------------------------------------------------------------------------------
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains / WebStorm / IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text & Atom
+*.sublime-workspace
+*.sublime-project
+
+# ------------------------------------------------------------------------------
+# 6. Operating System Artifacts
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ------------------------------------------------------------------------------
+# 7. Local Media Testing Files (Avoid committing large video/audio test assets)
+# ------------------------------------------------------------------------------
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.m4v
+*.ts
+*.mp3
+*.aac
+*.wav
+*.flac
+# Keep sample test media if specifically placed in tests/fixtures
+!src/assets/samples/*
+
+# ------------------------------------------------------------------------------
+# 8. Temporary, Cache & Agent Artifacts
+# ------------------------------------------------------------------------------
+.cache/
+.eslintcache
+.stylelintcache
+.prettiercache
+.temp/
+.tmp/
+tmp/
+scratch/

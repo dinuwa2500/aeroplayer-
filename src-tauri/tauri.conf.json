@@ -1,0 +1,76 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/tooling/cli/schema.json",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build",
+    "devPath": "http://localhost:5173",
+    "distDir": "../dist"
+  },
+  "package": {
+    "productName": "AeroPlayer",
+    "version": "1.0.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "dialog": {
+        "all": false,
+        "open": true
+      },
+      "fs": {
+        "all": false,
+        "readFile": true
+      },
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "maximize": true,
+        "minimize": true,
+        "show": true,
+        "unmaximize": true,
+        "unminimize": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "Video",
+      "copyright": "",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
+      "icon": [],
+      "identifier": "com.aeroplayer.desktop",
+      "longDescription": "High-performance cross-platform desktop media player with HLS streaming and hover thumbnail previews.",
+      "macOS": {
+        "frameworks": [],
+        "minimumSystemVersion": ""
+      },
+      "resources": [],
+      "shortDescription": "Desktop Media Player",
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      }
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 780,
+        "resizable": true,
+        "title": "AeroPlayer",
+        "width": 1200,
+        "minWidth": 800,
+        "minHeight": 520,
+        "decorations": false,
+        "transparent": false
+      }
+    ]
+  }
+}
