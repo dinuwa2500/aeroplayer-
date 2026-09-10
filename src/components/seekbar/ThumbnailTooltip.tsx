@@ -27,7 +27,7 @@ export const ThumbnailTooltip: React.FC<ThumbnailTooltipProps> = ({
 }) => {
   return (
     <div
-      className="pointer-events-none absolute bottom-5 -translate-x-1/2 z-40 flex flex-col items-center animate-fade-in transition-[transform,left] duration-75"
+      className="pointer-events-none absolute bottom-5 -translate-x-1/2 z-40 flex flex-col items-center will-change-[left]"
       style={{ left: `${hoverX}px` }}
     >
       {/* Card container */}
