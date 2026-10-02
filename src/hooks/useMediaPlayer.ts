@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { BufferedRange } from '../types/player';
+import { BufferedRange, VideoRotation } from '../types/player';
 import { clamp } from '../utils/clamp';
 
 interface UseMediaPlayerProps {
@@ -21,6 +21,9 @@ export function useMediaPlayer({ initialVolume = 0.8 }: UseMediaPlayerProps = {}
   const [bufferedRanges, setBufferedRanges] = useState<BufferedRange[]>([]);
   const [bufferedAhead, setBufferedAhead] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
+  const [rotation, setRotationState] = useState<VideoRotation>(0);
+  const [flipHorizontal, setFlipHorizontal] = useState<boolean>(false);
+  const [flipVertical, setFlipVertical] = useState<boolean>(false);
 
   // Update buffered ranges helper
   const updateBufferedRanges = useCallback(() => {
@@ -307,6 +310,33 @@ export function useMediaPlayer({ initialVolume = 0.8 }: UseMediaPlayerProps = {}
     }
   }, []);
 
+  const rotateClockwise = useCallback(() => {
+    setRotationState((prev) => (((prev + 90) % 360) as VideoRotation));
+  }, []);
+
+  const rotateCounterClockwise = useCallback(() => {
+    setRotationState((prev) => ((((prev - 90 + 360) % 360) as VideoRotation)));
+  }, []);
+
+  const setRotation = useCallback((angle: number) => {
+    const normalized = ((Math.round(angle / 90) * 90) % 360 + 360) % 360;
+    setRotationState(normalized as VideoRotation);
+  }, []);
+
+  const toggleFlipHorizontal = useCallback(() => {
+    setFlipHorizontal((prev) => !prev);
+  }, []);
+
+  const toggleFlipVertical = useCallback(() => {
+    setFlipVertical((prev) => !prev);
+  }, []);
+
+  const resetTransform = useCallback(() => {
+    setRotationState(0);
+    setFlipHorizontal(false);
+    setFlipVertical(false);
+  }, []);
+
   return {
     videoRef,
     isPlaying,
@@ -322,6 +352,9 @@ export function useMediaPlayer({ initialVolume = 0.8 }: UseMediaPlayerProps = {}
     bufferedAhead,
     error,
     setError,
+    rotation,
+    flipHorizontal,
+    flipVertical,
     play,
     pause,
     togglePlay,
@@ -332,5 +365,11 @@ export function useMediaPlayer({ initialVolume = 0.8 }: UseMediaPlayerProps = {}
     setPlaybackRate,
     toggleFullscreen,
     togglePictureInPicture,
+    rotateClockwise,
+    rotateCounterClockwise,
+    setRotation,
+    toggleFlipHorizontal,
+    toggleFlipVertical,
+    resetTransform,
   };
 }

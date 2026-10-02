@@ -13,12 +13,14 @@ import { TimeBadge } from '../seekbar/TimeBadge';
 import { VolumeSlider } from './VolumeSlider';
 import { QualitySelector } from './QualitySelector';
 import { PlaybackSpeedMenu } from './PlaybackSpeedMenu';
+import { RotateMenu } from './RotateMenu';
 import { SubtitleMenu } from '../subtitles/SubtitleMenu';
 import {
   BufferedRange,
   QualityLevel,
   HoverThumbnailState,
   SubtitleTrack,
+  VideoRotation,
 } from '../../types/player';
 
 interface ControlsOverlayProps {
@@ -40,6 +42,9 @@ interface ControlsOverlayProps {
   subtitleTrack: SubtitleTrack | null;
   isSubtitlesEnabled: boolean;
   syncOffset: number;
+  rotation: VideoRotation;
+  flipHorizontal: boolean;
+  flipVertical: boolean;
   onTogglePlay: () => void;
   onSeek: (time: number) => void;
   onSeekBy: (delta: number) => void;
@@ -47,6 +52,12 @@ interface ControlsOverlayProps {
   onToggleMute: () => void;
   onSelectQuality: (q: number) => void;
   onSelectSpeed: (speed: number) => void;
+  onRotateClockwise: () => void;
+  onRotateCounterClockwise: () => void;
+  onSelectRotation: (angle: VideoRotation) => void;
+  onToggleFlipHorizontal: () => void;
+  onToggleFlipVertical: () => void;
+  onResetTransform: () => void;
   onTogglePiP: () => void;
   onToggleFullscreen: () => void;
   onHoverProgress: (clientX: number, containerRect: DOMRect, duration: number) => void;
@@ -78,6 +89,9 @@ export const ControlsOverlay: React.FC<ControlsOverlayProps> = ({
   subtitleTrack,
   isSubtitlesEnabled,
   syncOffset,
+  rotation,
+  flipHorizontal,
+  flipVertical,
   onTogglePlay,
   onSeek,
   onSeekBy,
@@ -85,6 +99,12 @@ export const ControlsOverlay: React.FC<ControlsOverlayProps> = ({
   onToggleMute,
   onSelectQuality,
   onSelectSpeed,
+  onRotateClockwise,
+  onRotateCounterClockwise,
+  onSelectRotation,
+  onToggleFlipHorizontal,
+  onToggleFlipVertical,
+  onResetTransform,
   onTogglePiP,
   onToggleFullscreen,
   onHoverProgress,
@@ -188,6 +208,19 @@ export const ControlsOverlay: React.FC<ControlsOverlayProps> = ({
           <PlaybackSpeedMenu
             playbackRate={playbackRate}
             onSelectSpeed={onSelectSpeed}
+          />
+
+          {/* Video Rotation & Flip Menu */}
+          <RotateMenu
+            rotation={rotation}
+            flipHorizontal={flipHorizontal}
+            flipVertical={flipVertical}
+            onRotateClockwise={onRotateClockwise}
+            onRotateCounterClockwise={onRotateCounterClockwise}
+            onSelectRotation={onSelectRotation}
+            onToggleFlipHorizontal={onToggleFlipHorizontal}
+            onToggleFlipVertical={onToggleFlipVertical}
+            onResetTransform={onResetTransform}
           />
 
           {/* Subtitles & Voice Sync Menu */}

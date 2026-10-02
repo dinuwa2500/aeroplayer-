@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { StreamSource } from '../../types/player';
+import { StreamSource, VideoRotation } from '../../types/player';
 import { useMediaPlayer } from '../../hooks/useMediaPlayer';
 import { useHlsStream } from '../../hooks/useHlsStream';
 import { useThumbnailSeeker } from '../../hooks/useThumbnailSeeker';
@@ -9,7 +9,7 @@ import { ControlsOverlay } from '../controls/ControlsOverlay';
 import { SubtitleOverlay } from '../subtitles/SubtitleOverlay';
 import { BufferingIndicator } from './BufferingIndicator';
 import { ErrorBanner } from '../common/ErrorBanner';
-import { Play, Pause, Film } from 'lucide-react';
+import { Play, Pause, Film, RotateCw } from 'lucide-react';
 
 interface MediaPlayerProps {
   source: StreamSource | null;
@@ -33,6 +33,12 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
   const [playStateSplash, setPlayStateSplash] = useState<'play' | 'pause' | null>(null);
   const [isLiveStream, setIsLiveStream] = useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
+  const [containerSize, setContainerSize] = useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
+  const [transformToast, setTransformToast] = useState<{ text: string; sub?: string } | null>(null);
+  const toastTimeoutRef = useRef<number | null>(null);
 
   // 1. Core Media Player Hook
   const {
@@ -50,6 +56,9 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
     bufferedAhead,
     error: playerError,
     setError: setPlayerError,
+    rotation,
+    flipHorizontal,
+    flipVertical,
     togglePlay,
     seek,
     seekBy,
@@ -58,6 +67,12 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
     setPlaybackRate,
     toggleFullscreen,
     togglePictureInPicture,
+    rotateClockwise,
+    rotateCounterClockwise,
+    setRotation,
+    toggleFlipHorizontal,
+    toggleFlipVertical,
+    resetTransform,
   } = useMediaPlayer();
 
   // 2. HLS Adaptive Stream Engine Hook
@@ -107,7 +122,83 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
     getActiveSubtitleText,
   } = useSubtitles();
 
-  // 5. Desktop Keyboard Shortcuts Hook
+  // ResizeObserver for Container to accurately scale 90/270 degree rotated video
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateSize = () => {
+      const rect = container.getBoundingClientRect();
+      setContainerSize({ width: rect.width, height: rect.height });
+    };
+
+    updateSize();
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect) {
+          setContainerSize({
+            width: entry.contentRect.width,
+            height: entry.contentRect.height,
+          });
+        }
+      }
+    });
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  // Reset transform when source changes
+  useEffect(() => {
+    resetTransform();
+  }, [source, resetTransform]);
+
+  // Transform Toast Notification helper
+  const showTransformToast = useCallback((text: string, sub?: string) => {
+    if (toastTimeoutRef.current) {
+      window.clearTimeout(toastTimeoutRef.current);
+    }
+    setTransformToast({ text, sub });
+    toastTimeoutRef.current = window.setTimeout(() => {
+      setTransformToast(null);
+    }, 900);
+  }, []);
+
+  // Rotation & Transform action handlers with immediate visual feedback
+  const handleRotateCw = useCallback(() => {
+    rotateClockwise();
+    const nextAngle = (rotation + 90) % 360;
+    showTransformToast(`Rotated ${nextAngle}°`, nextAngle === 0 ? 'Standard View' : 'Clockwise');
+  }, [rotateClockwise, rotation, showTransformToast]);
+
+  const handleRotateCcw = useCallback(() => {
+    rotateCounterClockwise();
+    const nextAngle = (rotation - 90 + 360) % 360;
+    showTransformToast(`Rotated ${nextAngle}°`, nextAngle === 0 ? 'Standard View' : 'Counter-Clockwise');
+  }, [rotateCounterClockwise, rotation, showTransformToast]);
+
+  const handleSelectRotation = useCallback((angle: VideoRotation) => {
+    setRotation(angle);
+    showTransformToast(`Rotated ${angle}°`, angle === 0 ? 'Standard View' : undefined);
+  }, [setRotation, showTransformToast]);
+
+  const handleToggleFlipH = useCallback(() => {
+    toggleFlipHorizontal();
+    showTransformToast(!flipHorizontal ? 'Mirrored Horizontally' : 'Mirror Disabled');
+  }, [toggleFlipHorizontal, flipHorizontal, showTransformToast]);
+
+  const handleToggleFlipV = useCallback(() => {
+    toggleFlipVertical();
+    showTransformToast(!flipVertical ? 'Flipped Vertically' : 'Vertical Flip Disabled');
+  }, [toggleFlipVertical, flipVertical, showTransformToast]);
+
+  const handleResetTransform = useCallback(() => {
+    resetTransform();
+    showTransformToast('Orientation Reset', '0° Standard');
+  }, [resetTransform, showTransformToast]);
+
+  // 5. Desktop Keyboard Shortcuts Hook (including 'R' for rotation)
   useKeyboardShortcuts({
     togglePlay,
     toggleFullscreen: () => toggleFullscreen(containerRef.current),
@@ -116,6 +207,8 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
     volume,
     setVolume,
     onAdjustSubSync: adjustSyncOffset,
+    onRotate: (dir) => (dir === 'cw' ? handleRotateCw() : handleRotateCcw()),
+    onResetRotate: handleResetTransform,
   });
 
   // Synchronize Direct Stream / Local File Source (VLC-style Pre-Roll Caching)
@@ -239,6 +332,32 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
     }
   };
 
+  const isRotated90or270 = rotation === 90 || rotation === 270;
+  const videoTransform = `rotate(${rotation}deg) scaleX(${flipHorizontal ? -1 : 1}) scaleY(${flipVertical ? -1 : 1})`;
+
+  const videoStyle: React.CSSProperties =
+    isRotated90or270 && containerSize.width > 0 && containerSize.height > 0
+      ? {
+          width: `${containerSize.height}px`,
+          height: `${containerSize.width}px`,
+          maxWidth: 'none',
+          maxHeight: 'none',
+          flexShrink: 0,
+          transform: videoTransform,
+          transformOrigin: 'center center',
+          transition: 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)',
+        }
+      : {
+          width: '100%',
+          height: '100%',
+          transform:
+            rotation !== 0 || flipHorizontal || flipVertical
+              ? videoTransform
+              : undefined,
+          transformOrigin: 'center center',
+          transition: 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)',
+        };
+
   return (
     <div
       ref={containerRef}
@@ -254,7 +373,8 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
         ref={videoRef}
         playsInline
         preload="auto"
-        className="h-full w-full object-contain cursor-pointer"
+        style={videoStyle}
+        className="object-contain cursor-pointer"
         onClick={handleSurfaceClick}
         onDoubleClick={handleSurfaceDoubleClick}
       />
@@ -307,6 +427,23 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
         </div>
       )}
 
+      {/* 4.1 Rotation & Transform Notification Toast */}
+      {transformToast && (
+        <div className="pointer-events-none absolute top-8 z-30 flex items-center justify-center animate-fade-in">
+          <div className="flex items-center space-x-2.5 rounded-full bg-zinc-900/90 border border-zinc-700/80 px-4 py-2 text-white shadow-2xl backdrop-blur-md">
+            <RotateCw className="h-4 w-4 text-blue-400 animate-spin" />
+            <div className="flex flex-col">
+              <span className="text-xs font-bold leading-none">{transformToast.text}</span>
+              {transformToast.sub && (
+                <span className="text-[10px] text-zinc-400 leading-none mt-0.5">
+                  {transformToast.sub}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 5. Buffering Indicator */}
       <BufferingIndicator isBuffering={isBuffering} />
 
@@ -346,6 +483,9 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
           subtitleTrack={subtitleTrack}
           isSubtitlesEnabled={isSubtitlesEnabled}
           syncOffset={syncOffset}
+          rotation={rotation}
+          flipHorizontal={flipHorizontal}
+          flipVertical={flipVertical}
           onTogglePlay={togglePlay}
           onSeek={seek}
           onSeekBy={seekBy}
@@ -353,6 +493,12 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({
           onToggleMute={toggleMute}
           onSelectQuality={setQuality}
           onSelectSpeed={setPlaybackRate}
+          onRotateClockwise={handleRotateCw}
+          onRotateCounterClockwise={handleRotateCcw}
+          onSelectRotation={handleSelectRotation}
+          onToggleFlipHorizontal={handleToggleFlipH}
+          onToggleFlipVertical={handleToggleFlipV}
+          onResetTransform={handleResetTransform}
           onTogglePiP={togglePictureInPicture}
           onToggleFullscreen={() => toggleFullscreen(containerRef.current)}
           onHoverProgress={(clientX, containerRect, dur) =>

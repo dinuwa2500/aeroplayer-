@@ -8,6 +8,8 @@ interface KeyboardShortcutsOptions {
   volume: number;
   setVolume: (v: number) => void;
   onAdjustSubSync?: (delta: number) => void;
+  onRotate?: (direction: 'cw' | 'ccw') => void;
+  onResetRotate?: () => void;
   isEnabled?: boolean;
 }
 
@@ -19,6 +21,8 @@ export function useKeyboardShortcuts({
   volume,
   setVolume,
   onAdjustSubSync,
+  onRotate,
+  onResetRotate,
   isEnabled = true,
 }: KeyboardShortcutsOptions) {
   useEffect(() => {
@@ -75,6 +79,16 @@ export function useKeyboardShortcuts({
           e.preventDefault();
           onAdjustSubSync?.(0.1);
           break;
+        case 'KeyR':
+          if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+            e.preventDefault();
+            if (e.shiftKey) {
+              onRotate?.('ccw');
+            } else {
+              onRotate?.('cw');
+            }
+          }
+          break;
       }
     };
 
@@ -91,5 +105,7 @@ export function useKeyboardShortcuts({
     volume,
     setVolume,
     onAdjustSubSync,
+    onRotate,
+    onResetRotate,
   ]);
 }

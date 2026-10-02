@@ -21,6 +21,14 @@ export interface StreamSource {
   file?: File;
 }
 
+export type VideoRotation = 0 | 90 | 180 | 270;
+
+export interface VideoTransform {
+  rotation: VideoRotation;
+  flipHorizontal: boolean;
+  flipVertical: boolean;
+}
+
 export interface PlayerState {
   isPlaying: boolean;
   currentTime: number;
@@ -37,6 +45,9 @@ export interface PlayerState {
   error: string | null;
   isLive: boolean;
   source: StreamSource | null;
+  rotation: VideoRotation;
+  flipHorizontal: boolean;
+  flipVertical: boolean;
 }
 
 export interface HoverThumbnailState {
